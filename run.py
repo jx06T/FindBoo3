@@ -6,7 +6,7 @@ import json
 
 app = Flask(__name__)
 
-@app.route("/app", methods=['POST'])
+@app.route("/api", methods=['POST'])
 def linebot():
     body = request.get_data(as_text=True)
     json_data = json.loads(body)
@@ -26,7 +26,7 @@ def linebot():
         return 'XX'
 @app.route("/test", methods=['GET'])
 def test():
-    return 'OKT11'
+    return 'OKT0'
 
 if __name__ == "__main__":
     # run_with_ngrok(app)
