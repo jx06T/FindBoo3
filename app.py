@@ -24,7 +24,7 @@ def linebot():
         print('error')
     return 'OK'
 @app.route("/test", methods=['GET'])
-def linebot():
+def test():
     return 'OKT11'
 
 if __name__ == "__main__":
