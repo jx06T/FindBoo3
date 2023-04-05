@@ -13,7 +13,7 @@ def linebot():
     print(json_data)
     try:
         line_bot_api = LineBotApi('/HRjFoiKvF6titv5x3wDFFB/t1OjrS7j8UGh8TK0gh1BbuPdhGKMBjm4yq84uOM2vc2aXMxqJnO5olfjZet+WEL0xO+iAVeBrycHMF7sPB23VgDXAoxcFxbYl9JoCR03+L8F1H/IeZn3kxuqEPnKuQdB04t89/1O/w1cDnyilFU=')
-        handler = WebhookHandler('57d05fcee83d08744d3c34da8a970fc6t')
+        handler = WebhookHandler('57d05fcee83d08744d3c34da8a970fc6')
         signature = request.headers['X-Line-Signature']
         handler.handle(body, signature)
         tk = json_data['events'][0]['replyToken']         # 取得 reply token
