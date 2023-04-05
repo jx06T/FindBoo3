@@ -20,9 +20,10 @@ def linebot():
         msg = json_data['events'][0]['message']['text']   # 取得使用者發送的訊息
         text_message = TextSendMessage(text=msg)          # 設定回傳同樣的訊息
         line_bot_api.reply_message(tk,text_message)       # 回傳訊息
+        return 'OK'
     except:
         print('error')
-    return 'OK'
+        return 'XX'
 @app.route("/test", methods=['GET'])
 def test():
     return 'OKT11'
