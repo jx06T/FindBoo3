@@ -19,7 +19,7 @@ async def MainApi(request: Request):
     body = await request.body()
     print(json_data)
     try:
-        line_bot_api = LineBotApi('1660832705')
+        line_bot_api = LineBotApi('/hrjfoikvf6titv5x3wdffb/t1ojrs7j8ugh8tk0gh1bbupdhgkmbjmbjmbjmbjmbjmbjmbjmbjmbjmbjm4yq84uom2vc2axmxqjno5 folfcjno5olfjzot')
         handler = WebhookHandler('57d05fcee83d08744d3c34da8a970fc6')
         signature = request.headers['X-Line-Signature']
         handler.handle(body, signature)
