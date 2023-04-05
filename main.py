@@ -1,26 +1,19 @@
-from typing import Union
-from fastapi import FastAPI, Request
-import os
-from dotenv import load_dotenv
-import time
+from flask_ngrok import run_with_ngrok   # colab 使用，本機環境請刪除
+from flask import Flask, request
 from linebot import LineBotApi, WebhookHandler
-from linebot.models import TextSendMessage   
+from linebot.models import TextSendMessage   # 載入 TextSendMessage 模組
 import json
 
-load_dotenv()
+app = Flask(__name__)
 
-key = os.getenv("FAKE_VALUE")
-app = FastAPI()
-
-
-@app.post("/api")
-async def MainApi(request: Request):
-    json_data = await request.json()
-    body = await request.body()
+@app.route("/", methods=['POST'])
+def linebot():
+    body = request.get_data(as_text=True)
+    json_data = json.loads(body)
     print(json_data)
     try:
-        line_bot_api = LineBotApi('/hrjfoikvf6titv5x3wdffb/t1ojrs7j8ugh8tk0gh1bbupdhgkmbjmbjmbjmbjmbjmbjmbjmbjmbjmbjm4yq84uom2vc2axmxqjno5 folfcjno5olfjzot')
-        handler = WebhookHandler('57d05fcee83d08744d3c34da8a970fc6')
+        line_bot_api = LineBotApi('/HRjFoiKvF6titv5x3wDFFB/t1OjrS7j8UGh8TK0gh1BbuPdhGKMBjm4yq84uOM2vc2aXMxqJnO5olfjZet+WEL0xO+iAVeBrycHMF7sPB23VgDXAoxcFxbYl9JoCR03+L8F1H/IeZn3kxuqEPnKuQdB04t89/1O/w1cDnyilFU=')
+        handler = WebhookHandler('57d05fcee83d08744d3c34da8a970fc6t')
         signature = request.headers['X-Line-Signature']
         handler.handle(body, signature)
         tk = json_data['events'][0]['replyToken']         # 取得 reply token
@@ -31,8 +24,6 @@ async def MainApi(request: Request):
         print('error')
     return 'OK'
 
-
-@app.get("/test")
-def read_item():
-    now = date_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-    return {"ya": now}
+if __name__ == "__main__":
+    run_with_ngrok(app)
+    app.run()
