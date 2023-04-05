@@ -3,6 +3,11 @@ from flask import Flask, request
 from linebot import LineBotApi, WebhookHandler
 from linebot.models import TextSendMessage   # 載入 TextSendMessage 模組
 import json
+import os
+from dotenv import load_dotenv
+load_dotenv()
+LINE_TOKEN = os.getenv("LINE_TOKEN")
+LINE_SESRET = os.getenv("LINE_SESRET")
 
 app = Flask(__name__)
 
@@ -12,8 +17,8 @@ def linebot():
     json_data = json.loads(body)
     print(json_data)
     try:
-        line_bot_api = LineBotApi('/HRjFoiKvF6titv5x3wDFFB/t1OjrS7j8UGh8TK0gh1BbuPdhGKMBjm4yq84uOM2vc2aXMxqJnO5olfjZet+WEL0xO+iAVeBrycHMF7sPB23VgDXAoxcFxbYl9JoCR03+L8F1H/IeZn3kxuqEPnKuQdB04t89/1O/w1cDnyilFU=')
-        handler = WebhookHandler('57d05fcee83d08744d3c34da8a970fc6')
+        line_bot_api = LineBotApi(LINE_TOKEN)
+        handler = WebhookHandler(LINE_SESRET)
         signature = request.headers['X-Line-Signature']
         handler.handle(body, signature)
         tk = json_data['events'][0]['replyToken']         # 取得 reply token
