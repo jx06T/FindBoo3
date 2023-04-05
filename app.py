@@ -1,4 +1,4 @@
-from flask_ngrok import run_with_ngrok   # colab 使用，本機環境請刪除
+# from flask_ngrok import run_with_ngrok   # colab 使用，本機環境請刪除
 from flask import Flask, request
 from linebot import LineBotApi, WebhookHandler
 from linebot.models import TextSendMessage   # 載入 TextSendMessage 模組
@@ -25,8 +25,9 @@ def linebot():
     return 'OK'
 @app.route("/test", methods=['GET'])
 def linebot():
-    return 'OKT1'
+    return 'OKT11'
 
 if __name__ == "__main__":
-    run_with_ngrok(app)
-    app.run()
+    # run_with_ngrok(app)
+    # app.run()
+    pass
