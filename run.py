@@ -26,7 +26,7 @@ def linebot():
         return 'XX'
 @app.route("/test", methods=['GET'])
 def test():
-    return 'OKT0'
+    return 'OKT3'
 
 if __name__ == "__main__":
     # run_with_ngrok(app)
