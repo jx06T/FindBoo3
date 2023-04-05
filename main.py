@@ -3,6 +3,7 @@ from fastapi import FastAPI, Request
 import os
 from dotenv import load_dotenv
 import time
+
 load_dotenv()
 
 key = os.getenv("FAKE_VALUE")
