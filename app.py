@@ -55,7 +55,7 @@ def search(keyword, times):
              "count": count, "ISBN/ISSN": id, "from": f}
         titles.append(a)
         i += 1
-
+    print(titles)
     Blist = []
     for book in titles:
         C = CarouselColumn(
