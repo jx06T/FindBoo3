@@ -55,7 +55,7 @@ def search(keyword, times):
              "count": count, "ISBN/ISSN": id, "from": f}
         titles.append(a)
         i += 1
-    print(titles)
+
     Blist = []
     for book in titles:
         C = CarouselColumn(
@@ -74,7 +74,6 @@ def search(keyword, times):
             ]
         )
         Blist.append(C)
-
     return Blist
 
 
@@ -90,33 +89,36 @@ def linebot():
     body = request.get_data(as_text=True)
     json_data = json.loads(body)
     print(json_data)
-    # try:
-    line_bot_api = LineBotApi(LINE_TOKEN)
-    handler = WebhookHandler(LINE_SESRET)
-    signature = request.headers['X-Line-Signature']
-    handler.handle(body, signature)
-    tk = json_data['events'][0]['replyToken']         # 取得 reply token
-    name = json_data['events'][0]['message']['text']   # 取得使用者發送的訊息
-    if "$ " not in name:
-        msg = search(name, 1)
-        print(msg)
-        line_bot_api.push_message(tk, TemplateSendMessage(
-            alt_text='CarouselTemplate',
-            template=CarouselTemplate(columns=msg)))
-    else :
-        text_message = TextSendMessage(text="開發中...")          # 設定回傳同樣的訊息
-        line_bot_api.reply_message(tk,text_message)
-    # except:
-        # pass
+    try:
+        line_bot_api = LineBotApi(LINE_TOKEN)
+        handler = WebhookHandler(LINE_SESRET)
+        signature = request.headers['X-Line-Signature']
+        handler.handle(body, signature)
+        tk = json_data['events'][0]['replyToken']         # 取得 reply token
+        name = json_data['events'][0]['message']['text']   # 取得使用者發送的訊息
+        if "$ " not in name:
+            msg = search(name, 1)
+            line_bot_api.push_message(tk, TemplateSendMessage(
+                alt_text='CarouselTemplate',
+                template=CarouselTemplate(columns=msg)))
+            
+            text_message = TextSendMessage(text=str(msg))          # 設定回傳同樣的訊息
+            line_bot_api.reply_message(tk,text_message)
+        else :
+            text_message = TextSendMessage(text="開發中...")          # 設定回傳同樣的訊息
+            line_bot_api.reply_message(tk,text_message)
+    except:
+        print("ww")
+        pass
     
     return "ok"
 
 @app.route("/test", methods=['GET'])
 def test():
-    return '12:12'
+    return '12:54'
 
 
 if __name__ == "__main__":
     # run_with_ngrok(app)
-    app.run()
+    # app.run()
     pass
