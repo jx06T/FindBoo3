@@ -74,6 +74,7 @@ def search(keyword, times):
             ]
         )
         Blist.append(C)
+
     return Blist
 
 
@@ -98,6 +99,7 @@ def linebot():
         name = json_data['events'][0]['message']['text']   # 取得使用者發送的訊息
         if "$ " not in name:
             msg = search(name, 1)
+            print(msg)
             line_bot_api.push_message(tk, TemplateSendMessage(
                 alt_text='CarouselTemplate',
                 template=CarouselTemplate(columns=msg)))
