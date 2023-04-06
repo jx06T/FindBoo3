@@ -106,7 +106,8 @@ def linebot():
             line_bot_api.reply_message(tk,text_message)
     except:
         pass
-
+    
+    return "ok"
 
 @app.route("/test", methods=['GET'])
 def test():
