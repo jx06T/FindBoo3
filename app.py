@@ -87,7 +87,7 @@ def search(keyword, times):
                 )
             ]
         )
-        Blist.append(C)
+        Blist.append(C)        
     return Blist
 
 
@@ -108,15 +108,20 @@ def linebot():
         signature = request.headers['X-Line-Signature']
         handler.handle(body, signature)
         tk = json_data['events'][0]['replyToken']         # 取得 reply token
+        id = json_data['events'][0]['source']['userId']
         name = json_data['events'][0]['message']['text']   # 取得使用者發送的訊息
         if "$S " not in name:
-            text_message = TextSendMessage(text=str(tk))          # 設定回傳同樣的訊息
+            text_message = TextSendMessage(text = "搜尋中")          # 設定回傳同樣的訊息
             line_bot_api.reply_message(tk, text_message)
 
             msg = search(str(name), 1)
-            line_bot_api.push_message(tk, TemplateSendMessage(
-                alt_text='CarouselTemplate',
-                template=CarouselTemplate(columns=msg)))
+            if len(msg)>0:
+                line_bot_api.push_message(id, TemplateSendMessage(
+                    alt_text='CarouselTemplate',
+                    template=CarouselTemplate(columns=msg)))
+            else :
+                text_message = TextSendMessage(text = "無資料")          # 設定回傳同樣的訊息
+                line_bot_api.reply_message(tk, text_message)
         else:
             text_message = TextSendMessage(text="開發中...")          # 設定回傳同樣的訊息
             line_bot_api.reply_message(tk, text_message)
