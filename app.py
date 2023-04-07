@@ -58,10 +58,11 @@ def search(keyword, times):
         f = a[3].text[5:]
         if len(f) > 25:
             f = f[0:22]+"..."
-        if a[4].text[0] != "I" or a[4].text[10:min(25, len(a[4].text)) == ""]:
-            id = bigname
+        if a[min(4, len(a)-1)].text[0] != "I" or a[min(4, len(a)-1)].text[10:min(25, len(a[4].text)) == ""]:
+            id = bigname+" "+writer
         else:
-            id = name + a[4].text[10:min(25, len(a[4].text))]
+            id = name + " "+writer + " " + \
+                a[4].text[10:min(25, len(a[4].text))]
         count = re.findall(r"\d+", a[len(a)-1].text)
 
         a = {"name": name, "url": url, "writer": writer,
@@ -78,7 +79,7 @@ def search(keyword, times):
             actions=[
                 MessageAction(
                     label='查詢狀態',
-                    text="$ "+str(book['ISBN/ISSN'])
+                    text="$S "+str(book['ISBN/ISSN'])
                 ),
                 URIAction(
                     label='網頁連結',
@@ -108,8 +109,11 @@ def linebot():
         handler.handle(body, signature)
         tk = json_data['events'][0]['replyToken']         # 取得 reply token
         name = json_data['events'][0]['message']['text']   # 取得使用者發送的訊息
-        if "$ " not in name:
-            msg = search(name, 1)
+        if "$S " not in name:
+            text_message = TextSendMessage(text=str(tk))          # 設定回傳同樣的訊息
+            line_bot_api.reply_message(tk, text_message)
+
+            msg = search(str(name), 1)
             line_bot_api.push_message(tk, TemplateSendMessage(
                 alt_text='CarouselTemplate',
                 template=CarouselTemplate(columns=msg)))
@@ -127,6 +131,7 @@ def linebot():
 def test():
     return '05:16'
 
+
 @app.route("/test/<name>", methods=['GET'])
 def test2(name):
     line_bot_api = LineBotApi(LINE_TOKEN)
@@ -139,5 +144,5 @@ def test2(name):
 
 if __name__ == "__main__":
     # run_with_ngrok(app)
-    # app.run()
+    app.run()
     pass
