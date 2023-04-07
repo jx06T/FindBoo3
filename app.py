@@ -144,5 +144,5 @@ def test2(name):
 
 if __name__ == "__main__":
     # run_with_ngrok(app)
-    app.run()
+    # app.run()
     pass
