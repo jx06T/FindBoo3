@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 import requests
 from bs4 import BeautifulSoup
 import re
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse, parse_qs
 cookies = {
 }
 
@@ -99,6 +99,81 @@ def search(keyword, times):
     return Blist
 
 
+def GETmid(name):
+    params = {
+        'm': 'ss',
+        'k0': name,
+        't0': 'k',
+        'c0': 'and',
+        "list_num": 1,
+    }
+    response = requests.get(
+        URL, params=params, cookies=cookies, headers=headers)
+    soup = BeautifulSoup(response.text, "html.parser")
+    box = soup.find_all(class_="book")[0]
+    a = box.find("a")
+    url = urljoin(URL, a.get("href").replace("¤", "&"))
+    parsed_url = urlparse(url)
+    query_dict = parse_qs(parsed_url.query)
+    mid = query_dict['mid'][0]
+    a = box.find_all("p")
+    try:
+        count = int(re.findall(r"\d+", a[len(a)-1].text)[0])
+    except:
+        count = 25
+    return [mid,count]
+
+
+def GETstate(name):
+    t = GETmid(name)
+    mid =t[0]
+    count = t[1]
+    params = {
+        'mid': mid,
+        'i_is': '',
+        'i_lc': '',
+        'i_list_number': count,
+        'i_page': 1,
+        'i_vn': '',
+        'i_cn': '',
+        'i_ye': '',
+        'i_sory_by': '11',
+    }
+    response = requests.get(
+        "https://webpac.tphcc.gov.tw/webpac/ajax_page/get_content_area.cfm", params=params, cookies=cookies, headers=headers)
+    soup = BeautifulSoup(response.text, "html.parser")
+
+    if len(soup.find_all("tr")) == 1 or len(soup.find_all("tr")) == 0:
+        text = "無資料"
+        return text
+    a = ""
+    text = ""
+    for tr in soup.find_all("tr"):
+        if tr.find('th') != None:
+            continue
+        name = tr.find('td', {'data-title': '典藏地名稱：'}).find("span").text
+        status = re.sub(
+            r'\s+', '', tr.find('td', {'data-title': '館藏狀態：'}).find("span").text)
+        if  status[:2]!="借出":
+            if status != a :
+                a = status
+                if text!="":
+                    text+="\n"
+                text += status+"：\n"
+                text += "----------------------\n"
+            text += name+"\n"
+        else:
+            if "借出：" not in text:
+                text+="\n"
+                text+="借出：\n"
+                text += "----------------------\n"
+            text += name+"\n"
+            a = status
+            text += "("+status[3:]+")\n"
+
+    return text
+
+
 load_dotenv()
 LINE_TOKEN = os.getenv("LINE_TOKEN")
 LINE_SESRET = os.getenv("LINE_SESRET")
@@ -122,6 +197,7 @@ def linebot():
             if "$M" in name:
                 try:
                     times = int(name.split()[0][2:])
+                    name = name[3+len(str(times)):]
                 except:
                     times = 1
             else:
@@ -137,8 +213,12 @@ def linebot():
             else:
                 line_bot_api.push_message(id, TextSendMessage(text="喔不沒有任何東西"))
         else:
-            text_message = TextSendMessage(text="開發中...")          # 設定回傳同樣的訊息
+            text_message = TextSendMessage(text="搜尋中...")          # 設定回傳同樣的訊息
             line_bot_api.reply_message(tk, text_message)
+            name = name[3:]
+            text_message = TextSendMessage(text=GETstate(name)) 
+            line_bot_api.push_message(id, text_message)
+
     except:
         print("ww")
         pass
@@ -146,9 +226,13 @@ def linebot():
     return "ok"
 
 
-@app.route("/test", methods=['GET'])
-def test():
-    return '09:00'
+@app.route("/test/s/<name>", methods=['GET'])
+def test(name):
+    text = GETstate(name)
+    line_bot_api = LineBotApi(LINE_TOKEN)
+    text_message = TextSendMessage(text=text) 
+    line_bot_api.push_message(LINE_MYID, text_message)
+    return text
 
 
 @app.route("/test/<name>", methods=['GET'])
@@ -166,5 +250,5 @@ def test2(name):
 
 if __name__ == "__main__":
     # run_with_ngrok(app)
-    # app.run()
+    app.run()
     pass
