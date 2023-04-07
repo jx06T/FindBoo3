@@ -44,13 +44,26 @@ def search(keyword, times):
             continue
 
         a = box.find("a")
-        name = a.get("title")
+        bigname = a.get("title")
+        if len(bigname) > 40:
+            name = bigname[0:37]+"..."
+        else:
+            name = bigname
         url = urljoin(URL, a.get("href").replace("¤", "&"))
+
         a = box.find_all("p")
-        id = a[4].text[10:min(45, len(a[4].text))]
-        f = a[3].text[5:min(40, len(a[3].text))]
-        writer = a[1].text[3:min(38, len(a[1].text))]
+        writer = a[1].text[3:]
+        if len(writer) > 25:
+            writer = writer[0:22]+"..."
+        f = a[3].text[5:]
+        if len(f) > 25:
+            f = f[0:22]+"..."
+        if a[4].text[0] != "I" or a[4].text[10:min(25, len(a[4].text)) == ""]:
+            id = bigname
+        else:
+            id = name + a[4].text[10:min(25, len(a[4].text))]
         count = re.findall(r"\d+", a[len(a)-1].text)
+
         a = {"name": name, "url": url, "writer": writer,
              "count": count, "ISBN/ISSN": id, "from": f}
         titles.append(a)
@@ -60,7 +73,7 @@ def search(keyword, times):
     for book in titles:
         C = CarouselColumn(
             title=book['name'],
-            text="By"+book['writer']+"\n"+book["from"] +
+            text="By "+book['writer']+"\n"+book["from"] +
             "\n"+book['count'][1]+"/"+book['count'][0],
             actions=[
                 MessageAction(
@@ -80,7 +93,7 @@ def search(keyword, times):
 load_dotenv()
 LINE_TOKEN = os.getenv("LINE_TOKEN")
 LINE_SESRET = os.getenv("LINE_SESRET")
-
+LINE_MYID = os.getenv("LINE_MYID")
 app = Flask(__name__)
 
 
@@ -88,7 +101,6 @@ app = Flask(__name__)
 def linebot():
     body = request.get_data(as_text=True)
     json_data = json.loads(body)
-    print(json_data)
     try:
         line_bot_api = LineBotApi(LINE_TOKEN)
         handler = WebhookHandler(LINE_SESRET)
@@ -98,25 +110,31 @@ def linebot():
         name = json_data['events'][0]['message']['text']   # 取得使用者發送的訊息
         if "$ " not in name:
             msg = search(name, 1)
-            
-            text_message = TextSendMessage(text=str(msg))          # 設定回傳同樣的訊息
-            line_bot_api.reply_message(tk,text_message)
-            
             line_bot_api.push_message(tk, TemplateSendMessage(
                 alt_text='CarouselTemplate',
                 template=CarouselTemplate(columns=msg)))
-        else :
+        else:
             text_message = TextSendMessage(text="開發中...")          # 設定回傳同樣的訊息
-            line_bot_api.reply_message(tk,text_message)
+            line_bot_api.reply_message(tk, text_message)
     except:
         print("ww")
         pass
-    
+
     return "ok"
+
 
 @app.route("/test", methods=['GET'])
 def test():
-    return '12:54'
+    return '05:16'
+
+@app.route("/test/<name>", methods=['GET'])
+def test2(name):
+    line_bot_api = LineBotApi(LINE_TOKEN)
+    msg = search(name, 1)
+    line_bot_api.push_message(LINE_MYID, TemplateSendMessage(
+        alt_text='CarouselTemplate',
+        template=CarouselTemplate(columns=msg)))
+    return 'send'
 
 
 if __name__ == "__main__":
