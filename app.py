@@ -71,23 +71,31 @@ def search(keyword, times):
         i += 1
 
     Blist = []
+    i = 0
     for book in titles:
+        i += 1
         C = CarouselColumn(
             title=book['name'],
             text="By "+book['writer']+"\n"+book["from"] +
             "\n"+book['count'][1]+"/"+book['count'][0],
             actions=[
+                URIAction(
+                    label='網頁連結',
+                    uri=book["url"]
+                ),
+                MessageAction(
+                    label="------更多結果------" if i % 10 == 0 else '--------------------',
+                    text="$M"+str(times+1)+" "+keyword if i % 10 == 0 else ' '
+                ),
                 MessageAction(
                     label='查詢狀態',
                     text="$S "+str(book['ISBN/ISSN'])
                 ),
-                URIAction(
-                    label='網頁連結',
-                    uri=book["url"]
-                )
+
             ]
         )
-        Blist.append(C)        
+
+        Blist.append(C)
     return Blist
 
 
@@ -111,15 +119,22 @@ def linebot():
         id = json_data['events'][0]['source']['userId']
         name = json_data['events'][0]['message']['text']   # 取得使用者發送的訊息
         if "$S " not in name:
-            text_message = TextSendMessage(text = "搜尋中...")          # 設定回傳同樣的訊息
+            if "$M" in name:
+                try:
+                    times = int(name.split()[0][2:])
+                except:
+                    times = 1
+            else:
+                times = 1
+            text_message = TextSendMessage(text="搜尋中...")          # 設定回傳同樣的訊息
             line_bot_api.reply_message(tk, text_message)
 
-            msg = search(str(name), 1)
-            if len(msg)>0:
+            msg = search(str(name), times)
+            if len(msg) > 0:
                 line_bot_api.push_message(id, TemplateSendMessage(
                     alt_text='CarouselTemplate',
                     template=CarouselTemplate(columns=msg)))
-            else :
+            else:
                 line_bot_api.push_message(id, TextSendMessage(text="喔不沒有任何東西"))
         else:
             text_message = TextSendMessage(text="開發中...")          # 設定回傳同樣的訊息
@@ -133,18 +148,18 @@ def linebot():
 
 @app.route("/test", methods=['GET'])
 def test():
-    return '05:16'
+    return '09:00'
 
 
 @app.route("/test/<name>", methods=['GET'])
 def test2(name):
     line_bot_api = LineBotApi(LINE_TOKEN)
     msg = search(name, 1)
-    if len(msg)>0:
+    if len(msg) > 0:
         line_bot_api.push_message(LINE_MYID, TemplateSendMessage(
-        alt_text='CarouselTemplate',
-        template=CarouselTemplate(columns=msg)))
-    else :
+            alt_text='CarouselTemplate',
+            template=CarouselTemplate(columns=msg)))
+    else:
         line_bot_api.push_message(LINE_MYID, TextSendMessage(text="喔不沒有任何東西"))
     return 'send'
 
